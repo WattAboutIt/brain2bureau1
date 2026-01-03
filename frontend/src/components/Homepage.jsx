@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "../styles/Homepage.css";
 import StudyResources from "./Studyresources"; // Import the StudyResources component
 import Dashboard from "./Dashboard"; // Import the new Dashboard component
+import TrackProgress from "./TrackProgress"; // Import the TrackProgress component
 
 export default function Homepage() {
   const [currentPage, setCurrentPage] = useState("home");
@@ -28,14 +29,7 @@ export default function Homepage() {
     );
   }
   if (currentPage === "track-progress") {
-    return (
-      <div className="page-container">
-        <h1>Track Progress Page</h1>
-        <button className="back-btn" onClick={() => setCurrentPage("home")}>
-          Back to Home
-        </button>
-      </div>
-    );
+    return <TrackProgress onNavigate={setCurrentPage} />;
   }
 
   // Home page JSX
