@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "../styles/Homepage.css";
-import StudyResources from "./Studyresources"; // Import the StudyResources component
+import StudyResources from "./StudyResources"; // Import the StudyResources component
 import Dashboard from "./Dashboard"; // Import the new Dashboard component
 import TrackProgress from "./TrackProgress"; // Import the TrackProgress component
 import MockExam from "./MockExam"; // Import the MockExam component
