@@ -1,6 +1,6 @@
 // StudyResources.jsx
 import React from 'react';
-import "../styles/Studyresources.css";
+import "../styles/StudyResources.css";
 
 export default function StudyResources({ onNavigate }) {
   const studyMaterials = [
