@@ -1,6 +1,8 @@
 // TrackProgress.jsx
 import React from 'react';
 import"../styles/TrackProgress.css";
+import"./Profile";
+import Profile from './Profile';
 
 export default function TrackProgress({ onNavigate }) {
   const progressData = [
@@ -49,6 +51,8 @@ export default function TrackProgress({ onNavigate }) {
             <h1>Brain2Bureau - Loksewa Prep</h1>
             <p>Your Complete Preparation Companion</p>
           </div>
+          {/* Profile Component */}
+          <Profile onNavigate={onNavigate} />
         </div>
       </header>
 
