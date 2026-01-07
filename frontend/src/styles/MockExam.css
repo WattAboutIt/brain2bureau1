@@ -127,10 +127,10 @@
 
 .exam-btn {
   flex: 1 1 calc(33% - 1rem);
-  background: var(--primary-color);
-  color: var(--text-inverted);
+  background: var(--card-bg);
+  color: var(--primary-color);
   padding: 0.85rem 1rem;
-  border: none;
+  border: 2px solid var(--primary-color);
   border-radius: 1rem;
   font-weight: 600;
   cursor: pointer;

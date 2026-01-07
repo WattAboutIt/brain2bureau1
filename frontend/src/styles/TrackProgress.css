@@ -193,8 +193,8 @@
 }
 
 .activity-card {
-  background: white;
-  border: 2px solid #e2e8f0;
+  background: var(--card-bg);
+  border: 2px solid var(--primary-color);
   border-radius: 0.75rem;
   padding: 1rem;
   display: flex;
