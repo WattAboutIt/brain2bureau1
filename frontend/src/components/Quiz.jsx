@@ -53,11 +53,30 @@ const Quiz = ({ questions: propQuestions, onClose }) => {
     setAnswers((prev) => [...prev, ...remaining]);
     setTimeTaken(totalTime - secondsLeft);
     setShowResult(true);
+
+    // record exam history (score, total, percentage, time)
+    try {
+      const total = quizItems.length;
+      const percentage = total ? Math.round((score / total) * 100) : 0;
+      const raw = localStorage.getItem('examHistory') || '[]';
+      const arr = JSON.parse(raw);
+      arr.unshift({ score, total, percentage, time: new Date().toISOString(), title: quizItems[0]?.category ? quizItems[0].category : 'Mock Test' });
+      localStorage.setItem('examHistory', JSON.stringify(arr.slice(0, 50)));
+
+      // Also record an activity item
+      const logRaw = localStorage.getItem('activityLog') || '[]';
+      const logArr = JSON.parse(logRaw);
+      logArr.unshift({ type: 'exam', title: `Score: ${percentage}%`, time: new Date().toISOString() });
+      localStorage.setItem('activityLog', JSON.stringify(logArr.slice(0, 50)));
+    } catch (e) {
+      // ignore
+    }
+
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
-  }, [quizItems, answers.length, secondsLeft, totalTime]);
+  }, [quizItems, answers.length, secondsLeft, totalTime, score]);
 
   useEffect(() => {
     if (!quizItems.length || showResult) return;

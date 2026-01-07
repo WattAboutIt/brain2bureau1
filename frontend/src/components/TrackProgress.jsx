@@ -1,42 +1,43 @@
 // TrackProgress.jsx
 import React from 'react';
 import"../styles/TrackProgress.css";
-import"./Profile";
 import Profile from './Profile';
+import { studyMaterials } from "../data/studyMaterials";
+
+function humanTime(iso) {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleString();
+  } catch (e) {
+    return iso;
+  }
+}
 
 export default function TrackProgress({ onNavigate, toggleDarkMode }) {
-  const progressData = [
-    {
-      category: 'Study Resources',
-      percentage: 40,
-      color: '#0284c7'
-    },
-    {
-      category: 'Mock Exams',
-      percentage: 60,
-      color: '#0284c7'
-    }
-  ];
+  const completedRaw = localStorage.getItem('completedStudy') || '[]';
+  let completed = [];
+  try { completed = JSON.parse(completedRaw); } catch(e) { completed = []; }
+  const studyPercent = Math.round((completed.length / studyMaterials.length) * 100);
 
-  const recentActivities = [
-    {
-      icon: '✅',
-      title: 'Completed: Nepal Constitution',
-      time: '2 days ago',
-      type: 'completed'
-    },
-    {
-      icon: '📝',
-      title: 'Exam: General Knowledge - Score: 85%',
-      time: '3 days ago',
-      type: 'exam'
-    },
-    {
-      icon: '✅',
-      title: 'Completed: Geography of Nepal',
-      time: '5 days ago',
-      type: 'completed'
-    }
+  const examRaw = localStorage.getItem('examHistory') || '[]';
+  let exams = [];
+  try { exams = JSON.parse(examRaw); } catch(e) { exams = []; }
+  const examCount = exams.length;
+  const examAvg = examCount ? Math.round(exams.reduce((s,x) => s + (x.percentage||0), 0) / examCount) : 0;
+
+  // activities: combine activityLog and examHistory
+  const logRaw = localStorage.getItem('activityLog') || '[]';
+  let activityLog = [];
+  try { activityLog = JSON.parse(logRaw); } catch(e) { activityLog = []; }
+
+  const activities = [
+    ...activityLog.map(a => ({ icon: a.type === 'completed' ? '✅' : (a.type === 'uncompleted' ? '↩️' : '•'), title: `${a.type === 'completed' ? 'Completed' : a.type === 'uncompleted' ? 'Uncompleted' : a.type}: ${a.title}`, time: a.time })),
+    ...exams.map(e => ({ icon: '📝', title: `Exam: ${e.title ?? 'Mock'} - ${e.percentage}%`, time: e.time }))
+  ].sort((a,b) => new Date(b.time) - new Date(a.time)).slice(0,10);
+
+  const progressData = [
+    { category: 'Study Resources', percentage: studyPercent, color: '#0284c7' },
+    { category: 'Mock Exams (avg)', percentage: examAvg, color: '#8b5cf6' }
   ];
 
   return (
@@ -119,12 +120,12 @@ export default function TrackProgress({ onNavigate, toggleDarkMode }) {
             <h3 className="activity-title">Recent Activity</h3>
             
             <div className="activity-list">
-              {recentActivities.map((activity, index) => (
+              {activities.map((activity, index) => (
                 <div key={index} className="activity-card">
                   <div className="activity-icon">{activity.icon}</div>
                   <div className="activity-content">
                     <p className="activity-title-text">{activity.title}</p>
-                    <p className="activity-time">{activity.time}</p>
+                    <p className="activity-time">{humanTime(activity.time)}</p>
                   </div>
                 </div>
               ))}

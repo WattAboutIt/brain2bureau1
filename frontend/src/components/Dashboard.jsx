@@ -2,7 +2,31 @@
 import React from 'react';
 import "../styles/Dashboard.css";
 import Profile from "./Profile";
+import { studyMaterials } from "../data/studyMaterials";
+
+function uniqueDays(entries) {
+  const s = new Set();
+  entries.forEach(e => {
+    try { s.add(new Date(e.time).toDateString()); } catch(e) {}
+  });
+  return s.size;
+}
+
 export default function Dashboard({ onNavigate, toggleDarkMode }) {
+  const completedRaw = localStorage.getItem('completedStudy') || '[]';
+  let completed = [];
+  try { completed = JSON.parse(completedRaw); } catch(e) { completed = []; }
+
+  const examRaw = localStorage.getItem('examHistory') || '[]';
+  let exams = [];
+  try { exams = JSON.parse(examRaw); } catch(e) { exams = []; }
+
+  const resourcesRead = completed.length;
+  const examsTaken = exams.length;
+  const averageScore = examsTaken ? Math.round(exams.reduce((s,x) => s + (x.percentage||0),0) / examsTaken) : 0;
+  const studyDays = uniqueDays([...(JSON.parse(localStorage.getItem('activityLog') || '[]')), ...exams]);
+  const overallPercent = Math.round((resourcesRead / studyMaterials.length) * 100);
+
   return (
     <div className="dashboard-container">
       {/* Header */}
@@ -58,22 +82,22 @@ export default function Dashboard({ onNavigate, toggleDarkMode }) {
           {/* Stats Grid */}
           <div className="stats-grid">
             <div className="stat-card">
-              <div className="stat-number">8</div>
+              <div className="stat-number">{resourcesRead}</div>
               <div className="stat-label">Resources Read</div>
             </div>
 
             <div className="stat-card">
-              <div className="stat-number">5</div>
+              <div className="stat-number">{examsTaken}</div>
               <div className="stat-label">Exams Taken</div>
             </div>
 
             <div className="stat-card">
-              <div className="stat-number">78%</div>
+              <div className="stat-number">{averageScore}%</div>
               <div className="stat-label">Average Score</div>
             </div>
 
             <div className="stat-card">
-              <div className="stat-number">15</div>
+              <div className="stat-number">{studyDays}</div>
               <div className="stat-label">Study Days</div>
             </div>
           </div>
@@ -85,8 +109,8 @@ export default function Dashboard({ onNavigate, toggleDarkMode }) {
 
           {/* Progress Bar */}
           <div className="progress-bar-container">
-            <div className="progress-bar-fill">
-              <span className="progress-text">65% Complete</span>
+            <div className="progress-bar-fill" style={{ width: `${overallPercent}%` }}>
+              <span className="progress-text">{overallPercent}% Complete</span>
             </div>
           </div>
 

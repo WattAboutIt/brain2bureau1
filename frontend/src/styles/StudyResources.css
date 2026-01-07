@@ -123,6 +123,39 @@
   gap: 1rem;
 }
 
+.materials-overview {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.materials-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.progress-pill {
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.progress-bar {
+  height: 8px;
+  background: var(--border-color);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-light), var(--primary-color));
+  transition: width 0.4s ease;
+}
+
 .material-card {
   background: var(--card-bg);
   border: 2px solid var(--primary-color);
@@ -130,6 +163,18 @@
   padding: 1.25rem;
   transition: all 0.3s ease;
   cursor: pointer;
+}
+
+.material-card.completed {
+  border-color: #10b981;
+  background: linear-gradient(90deg, rgba(16,185,129,0.06), transparent);
+}
+
+.material-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
 }
 
 .material-card:hover {
@@ -151,6 +196,71 @@
   color: var(--text-secondary);
   margin: 0;
   line-height: 1.5;
+}
+
+.material-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.complete-btn {
+  padding: 0.5rem 0.85rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.complete-btn.done {
+  background: linear-gradient(90deg,#16a34a,#22c55e);
+  color: #fff;
+  border: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .study-resources-container {
+    padding: 0.75rem;
+  }
+
+  .study-header {
+    padding: 1.25rem;
+  }
+
+  .header-text h1 {
+    font-size: 1.25rem;
+  }
+
+  .header-text p {
+    font-size: 0.8rem;
+  }
+
+  .nav-container {
+    gap: 0.5rem;
+  }
+
+  .nav-btn {
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .study-materials-section {
+    padding: 1.25rem;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+  }
+
+  .material-card {
+    padding: 1rem;
+  }
+
+  .material-title {
+    font-size: 1rem;
+  }
 }
 
 /* Responsive Design */
