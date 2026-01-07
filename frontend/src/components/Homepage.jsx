@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/Homepage.css";
 import StudyResources from "./StudyResources";
 import Dashboard from "./Dashboard";
@@ -6,8 +6,54 @@ import TrackProgress from "./TrackProgress";
 import MockExam from "./MockExam";
 import Profile from "./Profile"; // Import Profile component
 
+function humanTime(iso) {
+  try { return new Date(iso).toLocaleString(); } catch(e) { return iso; }
+}
+
 export default function Homepage({ isDarkMode, toggleDarkMode }) {
   const [currentPage, setCurrentPage] = useState("home");
+  const [resourceStates, setResourceStates] = useState(() => {
+    const raw = localStorage.getItem('resourceStates') || '{}';
+    try { return JSON.parse(raw); } catch(e) { return {}; }
+  });
+  const [exams, setExams] = useState(() => {
+    const raw = localStorage.getItem('examHistory') || '[]';
+    try { return JSON.parse(raw); } catch(e) { return []; }
+  });
+  const [activityLog, setActivityLog] = useState(() => {
+    const raw = localStorage.getItem('activityLog') || '[]';
+    try { return JSON.parse(raw); } catch(e) { return []; }
+  });
+
+  useEffect(() => {
+    const storageHandler = (e) => {
+      if (!e) return;
+      if (e.key === 'resourceStates') setResourceStates(JSON.parse(localStorage.getItem('resourceStates') || '{}'));
+      if (e.key === 'examHistory') setExams(JSON.parse(localStorage.getItem('examHistory') || '[]'));
+      if (e.key === 'activityLog') setActivityLog(JSON.parse(localStorage.getItem('activityLog') || '[]'));
+    };
+    const resourceHandler = () => setResourceStates(JSON.parse(localStorage.getItem('resourceStates') || '{}'));
+    const examHandler = () => setExams(JSON.parse(localStorage.getItem('examHistory') || '[]'));
+    const activityHandler = () => setActivityLog(JSON.parse(localStorage.getItem('activityLog') || '[]'));
+
+    window.addEventListener('storage', storageHandler);
+    window.addEventListener('resourceStatesChanged', resourceHandler);
+    window.addEventListener('examHistoryChanged', examHandler);
+    window.addEventListener('activityLogChanged', activityHandler);
+
+    const interval = setInterval(() => {
+      setResourceStates(JSON.parse(localStorage.getItem('resourceStates') || '{}'));
+      setExams(JSON.parse(localStorage.getItem('examHistory') || '[]'));
+      setActivityLog(JSON.parse(localStorage.getItem('activityLog') || '[]'));
+    }, 1500);
+    return () => {
+      window.removeEventListener('storage', storageHandler);
+      window.removeEventListener('resourceStatesChanged', resourceHandler);
+      window.removeEventListener('examHistoryChanged', examHandler);
+      window.removeEventListener('activityLogChanged', activityHandler);
+      clearInterval(interval);
+    };
+  }, []);
 
   const handleNavigation = (page) => setCurrentPage(page);
 
@@ -24,6 +70,21 @@ export default function Homepage({ isDarkMode, toggleDarkMode }) {
   if (currentPage === "track-progress") {
     return <TrackProgress onNavigate={setCurrentPage} toggleDarkMode={toggleDarkMode} />;
   }
+
+  const resourcesRead = Object.values(resourceStates).filter(r => r && (r.completed || (r.progress||0) >= 100)).length;
+  const examsTaken = exams.length;
+  const averageScore = examsTaken ? Math.round(exams.reduce((s,x) => s + (x.percentage||0), 0) / examsTaken) : 0;
+  const overallPercent = (() => {
+    const vals = Object.values(resourceStates);
+    if (!vals || !vals.length) return 0;
+    const sum = vals.reduce((s, r) => s + (r.progress || 0), 0);
+    return Math.round(sum / vals.length);
+  })();
+
+  const activities = [
+    ...(activityLog || []).map(a => ({ icon: a.type === 'completed' ? '✅' : a.type === 'exam' ? '📝' : '•', title: `${a.type === 'completed' ? 'Completed' : a.type === 'exam' ? 'Exam' : a.type}: ${a.title}${a.detail ? ` — ${a.detail}` : ''}`, time: a.time })),
+    ...exams.map(e => ({ icon: '📝', title: `Exam: ${e.title ?? 'Mock'} - ${e.percentage}%`, time: e.time }))
+  ].sort((a,b) => new Date(b.time) - new Date(a.time)).slice(0,4);
 
   // Home page JSX
   return (
@@ -73,22 +134,49 @@ export default function Homepage({ isDarkMode, toggleDarkMode }) {
 
         {/* Welcome Card */}
         <div className="welcome-card">
-          <h2>Welcome Back! 👋</h2>
-          <p>Continue your Loksewa preparation journey</p>
+          <div className="welcome-grid">
+            <div className="welcome-left">
+              <h2>Welcome Back! 👋</h2>
+              <p>Continue your Loksewa preparation journey</p>
 
-          {/* Stats Cards */}
-          <div className="stats-container">
-            <div className="stat-card resources">
-              <div className="stat-number">8</div>
-              <div className="stat-label">Resources Read</div>
+              {/* Stats Cards */}
+              <div className="stats-container">
+                <div className="stat-card resources">
+                  <div className="stat-number">{resourcesRead}</div>
+                  <div className="stat-label">Resources Read</div>
+                </div>
+                <div className="stat-card exams">
+                  <div className="stat-number">{examsTaken}</div>
+                  <div className="stat-label">Exams Taken</div>
+                </div>
+                <div className="stat-card score">
+                  <div className="stat-number">{averageScore}%</div>
+                  <div className="stat-label">Average Score</div>
+                </div>
+              </div>
+
+              <div className="overall-progress">
+                <div className="progress-pill">Overall: {overallPercent}%</div>
+                <div className="progress-bar">
+                  <div className="progress-fill" style={{ width: `${overallPercent}%` }} />
+                </div>
+              </div>
             </div>
-            <div className="stat-card exams">
-              <div className="stat-number">5</div>
-              <div className="stat-label">Exams Taken</div>
-            </div>
-            <div className="stat-card score">
-              <div className="stat-number">78%</div>
-              <div className="stat-label">Average Score</div>
+
+            <div className="welcome-right">
+              <h3>Recent Activity</h3>
+              <div className="recent-list">
+                {activities.map((a, i) => (
+                  <div key={i} className="recent-item">
+                    <div className="recent-icon">{a.icon}</div>
+                    <div>
+                      <div className="recent-title">{a.title}</div>
+                      <div className="recent-time">{humanTime(a.time)}</div>
+                    </div>
+                  </div>
+                ))}
+                {!activities.length && <div className="recent-empty">No recent activity yet — start studying or take a quiz.</div>}
+              </div>
             </div>
           </div>
         </div>

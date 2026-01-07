@@ -22,6 +22,7 @@ const Quiz = ({ questions: propQuestions, onClose, secondsPerQuestion }) => {
   const [shuffledOptions, setShuffledOptions] = useState([]);
   const timerRef = useRef(null);
   const [timeTaken, setTimeTaken] = useState(0);
+  const answersRef = useRef([]);
 
   useEffect(() => {
     const pool = propQuestions ?? questions;
@@ -29,6 +30,7 @@ const Quiz = ({ questions: propQuestions, onClose, secondsPerQuestion }) => {
     setQuizItems(items);
     setSecondsLeft(items.length * secsPerQ);
     setAnswers([]);
+    answersRef.current = [];
     setScore(0);
     setCurrent(0);
     setShowResult(false);
@@ -45,24 +47,32 @@ const Quiz = ({ questions: propQuestions, onClose, secondsPerQuestion }) => {
   const totalTime = quizItems.length * secsPerQ;
 
   const finishQuiz = useCallback(() => {
-    const remaining = quizItems.slice(answers.length).map((q) => ({
+    // use ref to ensure we have latest answers (avoid stale state when finish is called immediately after answer)
+    const currentAnswers = answersRef.current || [];
+    const remaining = quizItems.filter(q => !currentAnswers.some(a => a.id === q.id)).map((q) => ({
       id: q.id,
       question: q.question,
       selected: null,
       correct: false,
       correctAnswer: q.answer,
     }));
-    setAnswers((prev) => [...prev, ...remaining]);
+
+    const merged = [...currentAnswers, ...remaining];
+    setAnswers(merged);
+    answersRef.current = merged;
+
+    const correctCount = merged.filter(a => a.correct).length;
+    setScore(correctCount);
     setTimeTaken(totalTime - secondsLeft);
     setShowResult(true);
 
     // record exam history (score, total, percentage, time)
     try {
       const total = quizItems.length;
-      const percentage = total ? Math.round((score / total) * 100) : 0;
+      const percentage = total ? Math.round((correctCount / total) * 100) : 0;
       const raw = localStorage.getItem('examHistory') || '[]';
       const arr = JSON.parse(raw);
-      arr.unshift({ score, total, percentage, time: new Date().toISOString(), title: quizItems[0]?.category ? quizItems[0].category : 'Mock Test' });
+      arr.unshift({ score: correctCount, total, percentage, time: new Date().toISOString(), title: quizItems[0]?.category ? quizItems[0].category : 'Mock Test' });
       localStorage.setItem('examHistory', JSON.stringify(arr.slice(0, 50)));
       // dispatch change for same-tab listeners
       try { window.dispatchEvent(new Event('examHistoryChanged')); } catch(e) {}
@@ -81,7 +91,7 @@ const Quiz = ({ questions: propQuestions, onClose, secondsPerQuestion }) => {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
-  }, [quizItems, answers.length, secondsLeft, totalTime, score]);
+  }, [quizItems, secondsLeft, totalTime]);
 
   useEffect(() => {
     if (!quizItems.length || showResult) return;
@@ -112,7 +122,11 @@ const Quiz = ({ questions: propQuestions, onClose, secondsPerQuestion }) => {
     setIsOptionDisabled(true);
     const q = quizItems[current];
     const correct = option === q.answer;
-    setAnswers((prev) => [...prev, { id: q.id, question: q.question, selected: option, correct, correctAnswer: q.answer }]);
+    setAnswers((prev) => {
+      const next = [...prev, { id: q.id, question: q.question, selected: option, correct, correctAnswer: q.answer }];
+      answersRef.current = next;
+      return next;
+    });
     if (correct) setScore((s) => s + 1);
 
     setTimeout(() => {
