@@ -8,7 +8,9 @@ function shuffleArray(arr) {
   return arr.slice().sort(() => Math.random() - 0.5);
 }
 
-const Quiz = ({ questions: propQuestions, onClose }) => {
+const Quiz = ({ questions: propQuestions, onClose, secondsPerQuestion }) => {
+  const secsPerQ = secondsPerQuestion ?? SECONDS_PER_QUESTION;
+
   const [current, setCurrent] = useState(0);
   const [score, setScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
@@ -25,7 +27,7 @@ const Quiz = ({ questions: propQuestions, onClose }) => {
     const pool = propQuestions ?? questions;
     const items = shuffleArray(pool);
     setQuizItems(items);
-    setSecondsLeft(items.length * SECONDS_PER_QUESTION);
+    setSecondsLeft(items.length * secsPerQ);
     setAnswers([]);
     setScore(0);
     setCurrent(0);
@@ -33,14 +35,14 @@ const Quiz = ({ questions: propQuestions, onClose }) => {
     setSelectedOption(null);
     setIsOptionDisabled(false);
     setTimeTaken(0);
-  }, [propQuestions]);
+  }, [propQuestions, secsPerQ]);
 
   useEffect(() => {
     if (!quizItems.length) return;
     setShuffledOptions(shuffleArray(quizItems[current].options || []));
   }, [current, quizItems]);
 
-  const totalTime = quizItems.length * SECONDS_PER_QUESTION;
+  const totalTime = quizItems.length * secsPerQ;
 
   const finishQuiz = useCallback(() => {
     const remaining = quizItems.slice(answers.length).map((q) => ({
@@ -137,7 +139,7 @@ const Quiz = ({ questions: propQuestions, onClose }) => {
   const restart = () => {
     const items = shuffleArray(propQuestions ?? questions);
     setQuizItems(items);
-    setSecondsLeft(items.length * SECONDS_PER_QUESTION);
+    setSecondsLeft(items.length * secsPerQ);
     setAnswers([]);
     setScore(0);
     setCurrent(0);
