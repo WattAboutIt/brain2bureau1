@@ -2,7 +2,7 @@
 import React from 'react';
 import "../styles/Dashboard.css";
 import Profile from "./Profile";
-export default function Dashboard({ onNavigate }) {
+export default function Dashboard({ onNavigate, toggleDarkMode }) {
   return (
     <div className="dashboard-container">
       {/* Header */}
@@ -16,7 +16,7 @@ export default function Dashboard({ onNavigate }) {
             <p>Your Complete Preparation Companion</p>
           </div>
           {/* Profile Component */}
-          <Profile onNavigate={onNavigate} />
+          <Profile onNavigate={onNavigate} toggleDarkMode={toggleDarkMode} />
         </div>
       </header>
 

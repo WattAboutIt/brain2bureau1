@@ -3,7 +3,7 @@ import React from 'react';
 import "../styles/MockExam.css";
 import Profile from "./Profile";
 
-export default function MockExam({ onNavigate }) {
+export default function MockExam({ onNavigate, toggleDarkMode }) {
   const examTypes = [
     {
       id: 'general-knowledge',
@@ -35,7 +35,7 @@ export default function MockExam({ onNavigate }) {
             <p>Your Complete Preparation Companion</p>
           </div>
           {/* Profile Component */}
-          <Profile onNavigate={onNavigate} />
+          <Profile onNavigate={onNavigate} toggleDarkMode={toggleDarkMode} />
         </div>
       </header>
 

@@ -1,25 +1,20 @@
 /* MockExam.css */
 
-/* Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 /* Container */
 .mock-exam-container {
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
-  background: linear-gradient(to bottom right, #eff6ff, #e0f2fe, #fef3c7);
+  background: linear-gradient(to bottom right, var(--bg-gradient-light), var(--bg-gradient-dark));
   padding-bottom: 2rem;
+  color: var(--text-primary);
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* Header */
 .mock-header {
-  background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
   padding: 1.5rem;
-  box-shadow: 0 4px 20px rgba(14, 165, 233, 0.25);
+  box-shadow: 0 4px 20px var(--button-hover-shadow);
   border-radius: 1rem;
   margin: 1rem 2rem 2rem 2rem;
 }
@@ -68,34 +63,34 @@
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
-  border: 2px solid #0ea5e9;
+  border: 2px solid var(--primary-color);
   background-color: transparent;
-  color: #0ea5e9;
+  color: var(--primary-color);
   transition: all 0.3s ease;
 }
 
 .nav-btn:hover {
-  background-color: #0ea5e9;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--text-inverted);
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(14, 165, 233, 0.3);
+  box-shadow: 0 8px 20px var(--button-hover-shadow);
 }
 
 .nav-btn-active {
-  background-color: #0ea5e9;
-  color: white;
-  border-color: #0ea5e9;
-  box-shadow: 0 10px 25px rgba(14, 165, 233, 0.35);
+  background-color: var(--primary-color);
+  color: var(--text-inverted);
+  border-color: var(--primary-color);
+  box-shadow: 0 10px 25px var(--button-hover-shadow);
 }
 
 /* Main Content */
 .mock-main {
   max-width: 1000px;
   margin: 0 auto;
-  background: #ffffff;
+  background: var(--card-bg);
   border-radius: 1.5rem;
   padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px var(--card-shadow);
 }
 
 /* Exam Section */
@@ -111,7 +106,7 @@
   gap: 0.75rem;
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary);
 }
 
 .section-title .icon {
@@ -120,7 +115,7 @@
 
 .section-description {
   font-size: 0.9rem;
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 /* Exam Buttons */
@@ -132,10 +127,10 @@
 
 .exam-btn {
   flex: 1 1 calc(33% - 1rem);
-  background: #0ea5e9;
-  color: white;
+  background: var(--card-bg);
+  color: var(--primary-color);
   padding: 0.85rem 1rem;
-  border: none;
+  border: 2px solid var(--primary-color);
   border-radius: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -148,9 +143,9 @@
 }
 
 .exam-btn:hover {
-  background: #2563eb;
+  background: var(--primary-dark);
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(14, 165, 233, 0.3);
+  box-shadow: 0 8px 20px var(--button-hover-shadow);
 }
 
 .exam-btn:active {
@@ -170,8 +165,8 @@
 
 .back-btn {
   padding: 0.75rem 1.5rem;
-  background: #0ea5e9;
-  color: white;
+  background: var(--primary-color);
+  color: var(--text-inverted);
   border: none;
   border-radius: 0.75rem;
   font-weight: 600;
@@ -180,7 +175,7 @@
 }
 
 .back-btn:hover {
-  background: #2563eb;
+  background: var(--primary-dark);
   transform: translateY(-3px);
 }
 
