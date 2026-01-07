@@ -4,7 +4,7 @@ import"../styles/TrackProgress.css";
 import"./Profile";
 import Profile from './Profile';
 
-export default function TrackProgress({ onNavigate }) {
+export default function TrackProgress({ onNavigate, toggleDarkMode }) {
   const progressData = [
     {
       category: 'Study Resources',
@@ -52,7 +52,7 @@ export default function TrackProgress({ onNavigate }) {
             <p>Your Complete Preparation Companion</p>
           </div>
           {/* Profile Component */}
-          <Profile onNavigate={onNavigate} />
+          <Profile onNavigate={onNavigate} toggleDarkMode={toggleDarkMode} />
         </div>
       </header>
 

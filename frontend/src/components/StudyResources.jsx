@@ -3,7 +3,7 @@ import React from 'react';
 import "../styles/StudyResources.css";
 import Profile from "./Profile";
 
-export default function StudyResources({ onNavigate }) {
+export default function StudyResources({ onNavigate, toggleDarkMode }) {
   const studyMaterials = [
     {
       title: 'Nepal Constitution 2072',
@@ -40,7 +40,7 @@ export default function StudyResources({ onNavigate }) {
             <p>Your Complete Preparation Companion</p>
           </div>
           {/* Profile Component */}
-          <Profile onNavigate={onNavigate} />
+          <Profile onNavigate={onNavigate} toggleDarkMode={toggleDarkMode} />
         </div>
       </header>
 

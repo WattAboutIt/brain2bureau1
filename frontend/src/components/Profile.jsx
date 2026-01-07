@@ -1,9 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../styles/Profile.css";
 
-export default function Profile({ onNavigate }) {
+export default function Profile({ onNavigate, toggleDarkMode }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const profileRef = useRef(null);
+
+  // Load dark mode preference on mount
+  useEffect(() => {
+    const savedMode = localStorage.getItem("darkMode");
+    if (savedMode !== null) {
+      setIsDarkMode(JSON.parse(savedMode));
+    }
+  }, []);
 
   const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
@@ -47,7 +56,9 @@ export default function Profile({ onNavigate }) {
         alert('Switch account functionality');
         break;
       case 'appearance':
-        alert('Toggle appearance functionality');
+        if (toggleDarkMode) {
+          toggleDarkMode();
+        }
         break;
       case 'language':
         alert('Change language functionality');
@@ -56,6 +67,26 @@ export default function Profile({ onNavigate }) {
         break;
     }
   };
+
+  const toggleAppearance = () => {
+    const newMode = !isDarkMode;
+    setIsDarkMode(newMode);
+  };
+
+  // Update isDarkMode when localStorage changes (from App)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const savedMode = localStorage.getItem("darkMode");
+      if (savedMode !== null) {
+        setIsDarkMode(JSON.parse(savedMode));
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  const appearanceText = isDarkMode ? "Appearance: Dark" : "Appearance: Light";
 
   return (
     <div className="profile-section" ref={profileRef}>
@@ -105,8 +136,8 @@ export default function Profile({ onNavigate }) {
           
           <div className="profile-menu-section">
             <button className="profile-menu-item" onClick={() => handleMenuClick('appearance')}>
-              <span className="menu-icon">🌙</span>
-              <span>Appearance: Light</span>
+              <span className="menu-icon">{isDarkMode ? "☀️" : "🌙"}</span>
+              <span>{appearanceText}</span>
             </button>
             <button className="profile-menu-item" onClick={() => handleMenuClick('language')}>
               <span className="menu-icon">🌐</span>

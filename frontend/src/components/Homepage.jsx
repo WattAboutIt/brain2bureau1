@@ -6,23 +6,23 @@ import TrackProgress from "./TrackProgress";
 import MockExam from "./MockExam";
 import Profile from "./Profile"; // Import Profile component
 
-export default function Homepage() {
+export default function Homepage({ isDarkMode, toggleDarkMode }) {
   const [currentPage, setCurrentPage] = useState("home");
 
   const handleNavigation = (page) => setCurrentPage(page);
 
   // Render different pages
   if (currentPage === "dashboard") {
-    return <Dashboard onNavigate={setCurrentPage} />;
+    return <Dashboard onNavigate={setCurrentPage} toggleDarkMode={toggleDarkMode} />;
   }
   if (currentPage === "study-resources") {
-    return <StudyResources onNavigate={setCurrentPage} />;
+    return <StudyResources onNavigate={setCurrentPage} toggleDarkMode={toggleDarkMode} />;
   }
   if (currentPage === "mock-exams") {
-    return <MockExam onNavigate={setCurrentPage} />;
+    return <MockExam onNavigate={setCurrentPage} toggleDarkMode={toggleDarkMode} />;
   }
   if (currentPage === "track-progress") {
-    return <TrackProgress onNavigate={setCurrentPage} />;
+    return <TrackProgress onNavigate={setCurrentPage} toggleDarkMode={toggleDarkMode} />;
   }
 
   // Home page JSX
@@ -37,7 +37,7 @@ export default function Homepage() {
             <p>Your Complete Preparation Companion</p>
           </div>
           {/* Profile Component */}
-          <Profile onNavigate={setCurrentPage} />
+          <Profile onNavigate={setCurrentPage} toggleDarkMode={toggleDarkMode} />
         </div>
       </header>
 
