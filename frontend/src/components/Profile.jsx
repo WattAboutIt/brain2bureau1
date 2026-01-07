@@ -60,11 +60,40 @@ export default function Profile({ onNavigate, toggleDarkMode }) {
         onNavigate('settings');
         break;
       case 'sign-out':
-        // Add sign out logic here
-        alert('Sign out functionality');
+        if (!confirm('Sign out securely?')) return;
+        // clear active profile & mark last logout
+        try {
+          const p = JSON.parse(localStorage.getItem('profile') || '{}');
+          if (p) {
+            const arr = JSON.parse(localStorage.getItem('devices') || '[]');
+            arr.unshift({ id: Date.now(), ua: navigator.userAgent || 'unknown', lastSeen: new Date().toISOString(), action: 'logout' });
+            localStorage.setItem('devices', JSON.stringify(arr));
+          }
+        } catch(e){}
+        localStorage.removeItem('profile');
+        try{ window.dispatchEvent(new Event('profileChanged')); } catch(e){}
+        onNavigate('home');
         break;
       case 'switch-account':
-        alert('Switch account functionality');
+        try {
+          const accounts = JSON.parse(localStorage.getItem('accounts') || '[]');
+          const list = accounts.map(a => a.username).join(', ');
+          const ans = prompt(`Enter username to switch to (available: ${list}) or type NEW to create a new account`,'');
+          if (!ans) return;
+          if (ans.toLowerCase() === 'new') {
+            const fullName = prompt('Full name'); if (fullName === null) return;
+            const username = prompt('Username'); if (username === null) return;
+            const p = { fullName, username, lastLogin: new Date().toISOString() };
+            accounts.unshift(p); localStorage.setItem('accounts', JSON.stringify(accounts)); localStorage.setItem('profile', JSON.stringify(p)); try{ window.dispatchEvent(new Event('profileChanged')); } catch(e){}
+            onNavigate('home');
+            return;
+          }
+          const found = accounts.find(a => a.username === ans);
+          if (!found) return alert('Account not found');
+          localStorage.setItem('profile', JSON.stringify(found));
+          try{ window.dispatchEvent(new Event('profileChanged')); } catch(e){}
+          onNavigate('home');
+        } catch(e) { alert('Switch failed'); }
         break;
       case 'appearance':
         // toggle and persist

@@ -6,6 +6,7 @@ import TrackProgress from "./TrackProgress";
 import MockExam from "./MockExam";
 import Profile from "./Profile"; // Import Profile component
 import MyAccount from "./MyAccount";
+import Settings from "./Settings";
 
 function humanTime(iso) {
   try { return new Date(iso).toLocaleString(); } catch(e) { return iso; }
@@ -32,6 +33,10 @@ export default function Homepage({ isDarkMode, toggleDarkMode }) {
       if (e.key === 'resourceStates') setResourceStates(JSON.parse(localStorage.getItem('resourceStates') || '{}'));
       if (e.key === 'examHistory') setExams(JSON.parse(localStorage.getItem('examHistory') || '[]'));
       if (e.key === 'activityLog') setActivityLog(JSON.parse(localStorage.getItem('activityLog') || '[]'));
+      if (e.key === 'profile') {
+        const p = JSON.parse(localStorage.getItem('profile') || '{}');
+        // update header if needed
+      }
     };
     const resourceHandler = () => setResourceStates(JSON.parse(localStorage.getItem('resourceStates') || '{}'));
     const examHandler = () => setExams(JSON.parse(localStorage.getItem('examHistory') || '[]'));
@@ -56,6 +61,33 @@ export default function Homepage({ isDarkMode, toggleDarkMode }) {
     };
   }, []);
 
+  // Auto-logout handler (checks inactivity against profile.autoLogoutMinutes)
+  useEffect(() => {
+    let lastActivity = Number(localStorage.getItem('lastActivity') || Date.now());
+    const touch = () => { lastActivity = Date.now(); localStorage.setItem('lastActivity', String(lastActivity)); };
+    window.addEventListener('mousemove', touch);
+    window.addEventListener('keydown', touch);
+
+    const checker = setInterval(() => {
+      try {
+        const p = JSON.parse(localStorage.getItem('profile') || '{}');
+        const auto = p.autoLogoutMinutes || 0;
+        if (auto > 0) {
+          const la = Number(localStorage.getItem('lastActivity') || lastActivity);
+          if (Date.now() - la > auto * 60 * 1000) {
+            // auto logout
+            localStorage.removeItem('profile');
+            try { window.dispatchEvent(new Event('profileChanged')); } catch(e) {}
+            alert('You have been logged out due to inactivity');
+            setCurrentPage('home');
+          }
+        }
+      } catch(e){}
+    }, 10 * 1000);
+
+    return () => { window.removeEventListener('mousemove', touch); window.removeEventListener('keydown', touch); clearInterval(checker); };
+  }, []);
+
   const handleNavigation = (page) => setCurrentPage(page);
 
   // Render different pages
@@ -73,6 +105,9 @@ export default function Homepage({ isDarkMode, toggleDarkMode }) {
   }
   if (currentPage === "my-account") {
     return <MyAccount onNavigate={setCurrentPage} toggleDarkMode={toggleDarkMode} />;
+  }
+  if (currentPage === "settings") {
+    return <Settings onNavigate={setCurrentPage} toggleDarkMode={toggleDarkMode} />;
   }
 
   const resourcesRead = Object.values(resourceStates).filter(r => r && (r.completed || (r.progress||0) >= 100)).length;
