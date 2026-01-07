@@ -88,16 +88,28 @@ const Quiz = ({ questions: propQuestions, onClose, secondsPerQuestion }) => {
 
     const correctCount = merged.filter(a => a.correct).length;
     setScore(correctCount);
-    setTimeTaken(totalTime - secondsLeft);
+
+    const duration = totalTime - secondsLeft;
+    setTimeTaken(duration);
     setShowResult(true);
 
-    // record exam history (score, total, percentage, time)
+    // Build per-category breakdown for future analytics
+    const breakdown = {};
+    merged.forEach(a => {
+      const q = quizItems.find(x => x.id === a.id) || {};
+      const cat = q.category || 'mixed';
+      if (!breakdown[cat]) breakdown[cat] = { correct: 0, total: 0 };
+      breakdown[cat].total += 1;
+      if (a.correct) breakdown[cat].correct += 1;
+    });
+
+    // record exam history (score, total, percentage, time, duration, breakdown)
     try {
       const total = quizItems.length;
       const percentage = total ? Math.round((correctCount / total) * 100) : 0;
       const raw = localStorage.getItem('examHistory') || '[]';
       const arr = JSON.parse(raw);
-      arr.unshift({ score: correctCount, total, percentage, time: new Date().toISOString(), title: quizItems[0]?.category ? quizItems[0].category : 'Mock Test' });
+      arr.unshift({ score: correctCount, total, percentage, time: new Date().toISOString(), title: quizItems[0]?.category ? quizItems[0].category : 'Mock Test', duration, breakdown });
       localStorage.setItem('examHistory', JSON.stringify(arr.slice(0, 50)));
       // dispatch change for same-tab listeners
       try { window.dispatchEvent(new Event('examHistoryChanged')); } catch(e) {}
@@ -105,7 +117,7 @@ const Quiz = ({ questions: propQuestions, onClose, secondsPerQuestion }) => {
       // Also record an activity item
       const logRaw = localStorage.getItem('activityLog') || '[]';
       const logArr = JSON.parse(logRaw);
-      logArr.unshift({ type: 'exam', title: `Score: ${percentage}%`, time: new Date().toISOString() });
+      logArr.unshift({ type: 'exam', title: `Score: ${percentage}%`, time: new Date().toISOString(), duration });
       localStorage.setItem('activityLog', JSON.stringify(logArr.slice(0, 50)));
       try { window.dispatchEvent(new Event('activityLogChanged')); } catch(e) {}
 
